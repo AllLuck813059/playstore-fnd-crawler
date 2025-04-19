@@ -21,9 +21,10 @@ const targets = [
 async function crawlPlayStore(page, url) {
   try {
     await page.goto(url, { waitUntil: "networkidle2" });
-    await page.waitForTimeout(3000);
 
-    // 바로 버전 div 대기
+    // 대신 아래처럼 딜레이 직접 구현
+    await new Promise(res => setTimeout(res, 3000));
+
     await page.waitForSelector("div.reAt0", { timeout: 5000 });
     const version = await page.$eval("div.reAt0", el => el.textContent.trim());
 
