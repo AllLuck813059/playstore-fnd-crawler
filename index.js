@@ -23,20 +23,23 @@ async function crawlPlayStore(page, url) {
     await page.goto(url, { waitUntil: "networkidle2" });
     await new Promise(res => setTimeout(res, 3000));
 
-    // 버튼 클릭 (정보 펼치기)
-    const button = await page.$("header div:nth-child(2) > button");
-    if (button) {
-      await button.click();
-      await new Promise(res => setTimeout(res, 1500));
-    } else {
-      console.log("버튼을 찾지 못했습니다.");
+    // iframe 중에서 버전 정보를 가진 프레임 찾기
+    const frames = page.frames();
+    let versionText = null;
+
+    for (const frame of frames) {
+      try {
+        const versionHandle = await frame.waitForSelector("div.reAt0", { timeout: 2000 });
+        if (versionHandle) {
+          versionText = await frame.$eval("div.reAt0", el => el.textContent.trim());
+          break;
+        }
+      } catch (err) {
+        // 해당 frame에 div.reAt0 없으면 무시
+      }
     }
 
-    // 버전 div 대기 후 추출
-    await page.waitForSelector("div.reAt0", { timeout: 7000 });
-    const version = await page.$eval("div.reAt0", el => el.textContent.trim());
-
-    return version;
+    return versionText || "PlayStore 오류";
   } catch (err) {
     console.log("PlayStore 크롤링 오류:", err.message);
     return "PlayStore 오류";
