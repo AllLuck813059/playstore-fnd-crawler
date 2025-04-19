@@ -20,23 +20,24 @@ const targets = [
 
 async function crawlPlayStore(page, url) {
   try {
-    // 모바일 User-Agent로 전환
-    await page.setUserAgent(
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 13_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.2 Mobile/15E148 Safari/604.1"
-    );
+    await page.goto(url, { waitUntil: "networkidle2" });
+    await page.waitForTimeout(3000); // 로딩 대기
 
-    const mobileUrl = url + "&hl=ko&gl=kr&pli=1";
-    await page.goto(mobileUrl, { waitUntil: "networkidle2" });
-    await page.waitForTimeout(3000);
+    // '정보 더보기' 버튼 클릭
+    await page.waitForSelector("header div:nth-child(2) > button", { timeout: 5000 });
+    await page.click("header div:nth-child(2) > button");
+    await page.waitForTimeout(1500); // 애니메이션 대기
 
-    const html = await page.content();
-    const match = html.match(/버전<\/div><div[^>]*>([\d.]+)<\/div>/);
+    // 버전 정보 추출
+    await page.waitForSelector("div.reAt0", { timeout: 5000 });
+    const version = await page.$eval("div.reAt0", el => el.textContent.trim());
 
-    return match ? match[1] : "버전 정보 없음";
+    return version;
   } catch (err) {
     return "PlayStore 오류";
   }
 }
+
 
 async function crawlFnd(page, url) {
   try {
