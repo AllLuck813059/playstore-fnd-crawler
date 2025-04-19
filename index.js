@@ -21,11 +21,19 @@ const targets = [
 async function crawlPlayStore(page, url) {
   try {
     await page.goto(url, { waitUntil: "networkidle2" });
-
-    // 대신 아래처럼 딜레이 직접 구현
     await new Promise(res => setTimeout(res, 3000));
 
-    await page.waitForSelector("div.reAt0", { timeout: 5000 });
+    // 버튼 클릭 (정보 펼치기)
+    const button = await page.$("header div:nth-child(2) > button");
+    if (button) {
+      await button.click();
+      await new Promise(res => setTimeout(res, 1500));
+    } else {
+      console.log("버튼을 찾지 못했습니다.");
+    }
+
+    // 버전 div 대기 후 추출
+    await page.waitForSelector("div.reAt0", { timeout: 7000 });
     const version = await page.$eval("div.reAt0", el => el.textContent.trim());
 
     return version;
