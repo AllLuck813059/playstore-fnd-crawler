@@ -21,11 +21,19 @@ const targets = [
 async function crawlPlayStore(page, url) {
   try {
     await page.goto(url, { waitUntil: "networkidle2" });
-    await page.waitForTimeout(2000);
-    await page.click('button[jsaction]');
-    await page.waitForTimeout(1500);
-    const version = await page.$eval(".reAt0", el => el.textContent.trim());
-    return version;
+    await page.waitForTimeout(3000);
+
+    // 버전 패널 열기 시도 (있으면)
+    const versionButton = await page.$('button[jsaction]');
+    if (versionButton) {
+      await versionButton.click();
+      await page.waitForTimeout(1500);
+    }
+
+    // 전체 HTML에서 버전 숫자 추출 (예: 1.2.3)
+    const html = await page.content();
+    const match = html.match(/(\d+\.\d+\.\d+)/);
+    return match ? match[1] : "버전 정보 없음";
   } catch (err) {
     return "PlayStore 오류";
   }
