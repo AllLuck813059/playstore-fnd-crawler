@@ -23,28 +23,19 @@ async function crawlPlayStore(page, url) {
     await page.goto(url, { waitUntil: "networkidle2" });
     await new Promise(res => setTimeout(res, 3000));
 
-    // iframe 중에서 버전 정보를 가진 프레임 찾기
-    const frames = page.frames();
-    let versionText = null;
+    // 전체 HTML 긁기
+    const html = await page.content();
 
-    for (const frame of frames) {
-      try {
-        const versionHandle = await frame.waitForSelector("div.reAt0", { timeout: 2000 });
-        if (versionHandle) {
-          versionText = await frame.$eval("div.reAt0", el => el.textContent.trim());
-          break;
-        }
-      } catch (err) {
-        // 해당 frame에 div.reAt0 없으면 무시
-      }
-    }
+    // 정규식으로 버전 패턴 찾기 (숫자.숫자.숫자 or 숫자.숫자)
+    const match = html.match(/\b\d+\.\d+(\.\d+)?\b/);
 
-    return versionText || "PlayStore 오류";
+    return match ? match[0] : "PlayStore 오류";
   } catch (err) {
     console.log("PlayStore 크롤링 오류:", err.message);
     return "PlayStore 오류";
   }
 }
+
 
 
 async function crawlFnd(page, url) {
