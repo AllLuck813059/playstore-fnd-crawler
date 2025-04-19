@@ -23,22 +23,21 @@ async function crawlPlayStore(page, url) {
     await page.goto(url, { waitUntil: "networkidle2" });
     await new Promise(res => setTimeout(res, 3000));
 
-    const html = await page.content();
+    // div.reAt0가 있는 모든 요소에서 텍스트 수집
+    const elements = await page.$$eval("div.reAt0", els =>
+      els.map(el => el.textContent.trim()).filter(Boolean)
+    );
 
-    // 텍스트로 변환
-    const cleanText = html.replace(/<[^>]*>/g, " "); // 태그 제거
-    const lower = cleanText.toLowerCase();
+    // 3자리 버전 형식이 있는 값만 추출 (8.7.0 등)
+    const version = elements.find(v => /^\d+\.\d+\.\d+$/.test(v));
 
-    // "버전" 또는 "version" 주변의 텍스트에서 버전 번호 찾기
-    const contextRegex = /(버전|version)[^\d]{0,10}(\d+\.\d+(?:\.\d+)?)/i;
-    const match = lower.match(contextRegex);
-
-    return match ? match[2] : "PlayStore 오류";
+    return version || "PlayStore 오류";
   } catch (err) {
     console.log("PlayStore 크롤링 오류:", err.message);
     return "PlayStore 오류";
   }
 }
+
 
 
 
