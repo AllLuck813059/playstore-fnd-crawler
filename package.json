@@ -1,0 +1,12 @@
+{
+  "name": "playstore-fnd-crawler",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "googleapis": "^130.0.0",
+    "puppeteer": "^22.0.0"
+  }
+}
