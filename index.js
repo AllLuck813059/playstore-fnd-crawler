@@ -21,19 +21,15 @@ const targets = [
 async function crawlPlayStore(page, url) {
   try {
     await page.goto(url, { waitUntil: "networkidle2" });
-    await page.waitForTimeout(3000); // 로딩 대기
+    await page.waitForTimeout(3000);
 
-    // '정보 더보기' 버튼 클릭
-    await page.waitForSelector("header div:nth-child(2) > button", { timeout: 5000 });
-    await page.click("header div:nth-child(2) > button");
-    await page.waitForTimeout(1500); // 애니메이션 대기
-
-    // 버전 정보 추출
+    // 바로 버전 div 대기
     await page.waitForSelector("div.reAt0", { timeout: 5000 });
     const version = await page.$eval("div.reAt0", el => el.textContent.trim());
 
     return version;
   } catch (err) {
+    console.log("PlayStore 크롤링 오류:", err.message);
     return "PlayStore 오류";
   }
 }
