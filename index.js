@@ -1,5 +1,5 @@
-const puppeteer = require("puppeteer");
-const { google } = require("googleapis");
+import puppeteer from "puppeteer";
+import { google } from "googleapis";
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
 const client_email = process.env.SHEETS_CLIENT_EMAIL;
