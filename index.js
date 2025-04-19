@@ -1,5 +1,7 @@
 import puppeteer from "puppeteer";
 import { google } from "googleapis";
+import { config } from "dotenv";
+config();
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
 const client_email = process.env.SHEETS_CLIENT_EMAIL;
