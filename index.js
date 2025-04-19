@@ -20,19 +20,18 @@ const targets = [
 
 async function crawlPlayStore(page, url) {
   try {
-    await page.goto(url, { waitUntil: "networkidle2" });
+    // 모바일 User-Agent로 전환
+    await page.setUserAgent(
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 13_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.2 Mobile/15E148 Safari/604.1"
+    );
+
+    const mobileUrl = url + "&hl=ko&gl=kr&pli=1";
+    await page.goto(mobileUrl, { waitUntil: "networkidle2" });
     await page.waitForTimeout(3000);
 
-    // 버전 패널 열기 시도 (있으면)
-    const versionButton = await page.$('button[jsaction]');
-    if (versionButton) {
-      await versionButton.click();
-      await page.waitForTimeout(1500);
-    }
-
-    // 전체 HTML에서 버전 숫자 추출 (예: 1.2.3)
     const html = await page.content();
-    const match = html.match(/(\d+\.\d+\.\d+)/);
+    const match = html.match(/버전<\/div><div[^>]*>([\d.]+)<\/div>/);
+
     return match ? match[1] : "버전 정보 없음";
   } catch (err) {
     return "PlayStore 오류";
